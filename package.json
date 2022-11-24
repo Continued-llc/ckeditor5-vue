@@ -1,8 +1,8 @@
 {
-  "name": "@ckeditor/ckeditor5-vue",
+  "name": "@continued-llc/ckeditor5-vue",
   "version": "4.0.1",
   "main": "dist/ckeditor.js",
-  "description": "Official Vue.js 3+ component for CKEditor 5 – the best browser-based rich text editor.",
+  "description": "Forked Official Vue.js 3+ component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
     "rich text",
@@ -67,7 +67,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ckeditor/ckeditor5-vue.git"
+    "url": "https://github.com/Continued-llc/ckeditor5-vue.git"
   },
   "files": [
     "dist"
@@ -75,9 +75,9 @@
   "author": "CKSource (http://cksource.com/)",
   "license": "GPL-2.0-or-later",
   "bugs": {
-    "url": "https://github.com/ckeditor/ckeditor5-vue/issues"
+    "url": "https://github.com/Continued-llc/ckeditor5-vue/issues"
   },
-  "homepage": "https://github.com/ckeditor/ckeditor5-vue",
+  "homepage": "https://github.com/Continued-llc/ckeditor5-vue",
   "eslintIgnore": [
     "dist/**"
   ]
