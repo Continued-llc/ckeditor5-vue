@@ -4,17 +4,9 @@
  */
 
 /* eslint-env browser */
-import * as Vue from 'vue';
 import CKEditorComponent from './ckeditor.js';
 
 /* istanbul ignore if */
-if ( Vue.version < 3 ) {
-	throw new Error(
-		'The CKEditor plugin works only with Vue 3+. ' +
-		'For more information, please refer to ' +
-		'https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/vuejs-v3.html'
-	);
-}
 
 const CKEditor = {
 	/**
