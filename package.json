@@ -1,7 +1,7 @@
 {
   "name": "@continued-llc/ckeditor5-vue",
   "version": "4.0.4",
-  "main": "dist/ckeditor.js",
+  "main": "dist/ckeditor.mjs",
   "description": "Forked Official Vue.js 3+ component for CKEditor 5 – the best browser-based rich text editor.",
   "keywords": [
     "wysiwyg",
@@ -16,7 +16,8 @@
     "vue.js component",
     "ckeditor",
     "ckeditor5",
-    "ckeditor 5"
+    "ckeditor 5",
+    "vite"
   ],
   "devDependencies": {
     "@babel/core": "^7.17.7",
