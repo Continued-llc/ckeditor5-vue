@@ -1,7 +1,7 @@
 # CKEditor 5 rich text editor component for Vue.js 3+
 
 [![npm version](https://badge.fury.io/js/%40ckeditor%2Fckeditor5-vue.svg)](https://www.npmjs.com/package/@ckeditor/ckeditor5-vue)
-[![Build Status](https://app.travis-ci.com/ckeditor/ckeditor5-vue.svg?branch=master)](https://app.travis-ci.com/ckeditor/ckeditor5-vue)
+[![CircleCI](https://circleci.com/gh/ckeditor/ckeditor5-vue.svg?style=shield)](https://app.circleci.com/pipelines/github/ckeditor/ckeditor5-vue?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/ckeditor/ckeditor5-vue/badge.svg?branch=master)](https://coveralls.io/github/ckeditor/ckeditor5-vue?branch=master)
 ![Dependency Status](https://img.shields.io/librariesio/release/npm/@ckeditor/ckeditor5-vue)
 
@@ -25,15 +25,15 @@ See the ["Rich text editor component for Vue.js"](https://ckeditor.com/docs/cked
 After cloning this repository, install necessary dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 ### Executing tests
 
 ```bash
-npm run test -- [additional options]
+yarn run test -- [additional options]
 # or
-npm t -- [additional options]
+yarn t -- [additional options]
 ```
 
 The command accepts the following options:
@@ -44,20 +44,20 @@ The command accepts the following options:
 * `--reporter` (`-r`) &ndash; Reporter for Karma (default: `mocha`, can be changed to `dots`).
 * `--browsers` (`-b`) &ndash; Browsers that will be used to run tests (default: `Chrome`, available: `Firefox`).
 
-If you are going to change the component (`src/ckeditor.js`) or plugin (`src/plugin.js`) files, remember about rebuilding the package. You can use `npm run develop` in order to do it automatically.
+If you are going to change the component (`src/ckeditor.js`) or plugin (`src/plugin.js`) files, remember about rebuilding the package. You can use `yarn run develop` in order to do it automatically.
 
 ### Building the package
 
 Build a minified version of the package that is ready to publish:
 
 ```bash
-npm run build
+yarn run build
 ```
 
 ### Changelog generator
 
 ```bash
-npm run changelog
+yarn run changelog
 ```
 
 ### Testing component with Vue CLI
@@ -78,12 +78,25 @@ Otherwise, the application will fail to load the component correctly and, as a r
 
 ## Releasing package
 
+### Prerequisites
+
+Before releasing a new version, run a demo project to confirm that the integration works in a real-world scenario.
+
+1. Navigate to the `demo` folder.
+2. Reinstall the dependencies.
+3. Run `yarn dev` to see if the integration works as expected.
+4. Run `yarn build` to see if the project with the integration builds without errors.
+
+```Text
+Dependencies in the `demo` project need to be reinstalled after any changes to the integration, because in `package.json` we use `file:` instead of `link:` due to Vite limitations. Unlike `link:`, which creates a symlink to the integration, `file:` copies its contents when `yarn install` is run and never updates after that.
+```
+
 ### Changelog
 
 Before starting the release process, you need to generate the changelog:
 
 ```bash
-npm run changelog
+yarn run changelog
 ```
 
 ### Publishing
@@ -93,18 +106,16 @@ After generating the changelog, you are able to release the package.
 First, you need to bump the version:
 
 ```bash
-npm run release:bump-version
+yarn run release:prepare-packages
 ```
-
-You can also use the `--dry-run` option in order to see what this task does.
 
 After bumping the version, you can publish the changes:
 
 ```bash
-npm run release:publish
+yarn run release:publish-packages
 ```
 
-Note: Only the `dist/` directory will be published.
+Note: The `release/` directory will be published.
 
 ## License
 

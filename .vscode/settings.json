@@ -1,0 +1,6 @@
+{
+    "circleci.persistedProjectSelection": [
+        "gh/Continued-llc/ckeditor5-vue",
+        "gh/ckeditor/ckeditor5-vue"
+    ]
+}

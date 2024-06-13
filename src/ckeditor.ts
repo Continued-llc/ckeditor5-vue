@@ -1,39 +1,24 @@
 /**
- * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md.
  */
 
 /* global window, console */
 
-import { h, markRaw } from 'vue';
 import { debounce } from 'lodash-es';
+import { defineComponent, h, markRaw, type PropType } from 'vue';
+import type { Editor, EditorConfig } from 'ckeditor5';
 
 const SAMPLE_READ_ONLY_LOCK_ID = 'Integration Sample';
 const INPUT_EVENT_DEBOUNCE_WAIT = 300;
 
-export default {
-	name: 'ckeditor',
+export interface CKEditorComponentData {
+	instance: Editor | null;
+	lastEditorData: string | null;
+}
 
-	created() {
-		const { CKEDITOR_VERSION } = window;
-
-		// Starting from v34.0.0, CKEditor 5 introduces a lock mechanism enabling/disabling the read-only mode.
-		// As it is a breaking change between major releases of the integration, the component requires using
-		// CKEditor 5 in version 34 or higher.
-		if ( CKEDITOR_VERSION ) {
-			const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
-
-			if ( major < 34 ) {
-				console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.' );
-			}
-		} else {
-			console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
-		}
-	},
-
-	render() {
-		return h( this.tagName );
-	},
+export default defineComponent( {
+	name: 'Ckeditor',
 
 	model: {
 		prop: 'modelValue',
@@ -42,16 +27,16 @@ export default {
 
 	props: {
 		editor: {
-			type: Function,
-			default: null
+			type: Function as unknown as PropType<{ create( ...args: any ): Promise<Editor> }>,
+			required: true
+		},
+		config: {
+			type: Object as PropType<EditorConfig>,
+			default: () => ( {} )
 		},
 		modelValue: {
 			type: String,
 			default: ''
-		},
-		config: {
-			type: Object,
-			default: () => ( {} )
 		},
 		tagName: {
 			type: String,
@@ -60,66 +45,29 @@ export default {
 		disabled: {
 			type: Boolean,
 			default: false
+		},
+		disableTwoWayDataBinding: {
+			type: Boolean,
+			default: false
 		}
 	},
 
-	data() {
+	emits: [
+		'ready',
+		'destroy',
+		'blur',
+		'focus',
+		'input',
+		'update:modelValue'
+	],
+
+	data(): CKEditorComponentData {
 		return {
 			// Don't define it in #props because it produces a warning.
 			// https://v3.vuejs.org/guide/component-props.html#one-way-data-flow
 			instance: null,
-
-			lastEditorData: {
-				type: String,
-				default: ''
-			}
+			lastEditorData: null
 		};
-	},
-
-	mounted() {
-		// Clone the config first so it never gets mutated (across multiple editor instances).
-		// https://github.com/ckeditor/ckeditor5-vue/issues/101
-		const editorConfig = Object.assign( {}, this.config );
-
-		if ( this.modelValue ) {
-			editorConfig.initialData = this.modelValue;
-		}
-
-		this.editor.create( this.$el, editorConfig )
-			.then( editor => {
-				// Save the reference to the instance for further use.
-				this.instance = markRaw( editor );
-
-				this.setUpEditorEvents();
-
-				// Synchronize the editor content. The #modelValue may change while the editor is being created, so the editor content has
-				// to be synchronized with these potential changes as soon as it is ready.
-				if ( this.modelValue !== editorConfig.initialData ) {
-					editor.setData( this.modelValue );
-				}
-
-				// Set initial disabled state.
-				if ( this.disabled ) {
-					editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
-				}
-
-				// Let the world know the editor is ready.
-				this.$emit( 'ready', editor );
-			} )
-			.catch( error => {
-				console.error( error );
-			} );
-	},
-
-	beforeUnmount() {
-		if ( this.instance ) {
-			this.instance.destroy();
-			this.instance = null;
-		}
-
-		// Note: By the time the editor is destroyed (promise resolved, editor#destroy fired)
-		// the Vue component will not be able to emit any longer. So emitting #destroy a bit earlier.
-		this.$emit( 'destroy', this.instance );
 	},
 
 	watch: {
@@ -147,33 +95,99 @@ export default {
 			//
 			// See: https://github.com/ckeditor/ckeditor5-vue/issues/42.
 			if ( this.instance && value !== this.lastEditorData ) {
-				this.instance.setData( value );
+				this.instance.data.set( value );
 			}
 		},
 
 		// Synchronize changes of #disabled.
 		disabled( readOnlyMode ) {
 			if ( readOnlyMode ) {
-				this.instance.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+				this.instance!.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
 			} else {
-				this.instance.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+				this.instance!.disableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
 			}
 		}
 	},
 
+	created() {
+		const { CKEDITOR_VERSION } = window;
+
+		if ( !CKEDITOR_VERSION ) {
+			return console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
+		}
+
+		const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
+
+		if ( major >= 42 || CKEDITOR_VERSION.startsWith( '0.0.0' ) ) {
+			return;
+		}
+
+		console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.' );
+	},
+
+	mounted() {
+		// Clone the config first so it never gets mutated (across multiple editor instances).
+		// https://github.com/ckeditor/ckeditor5-vue/issues/101
+		const editorConfig: EditorConfig = Object.assign( {}, this.config );
+
+		if ( this.modelValue ) {
+			editorConfig.initialData = this.modelValue;
+		}
+
+		this.editor.create( this.$el, editorConfig )
+			.then( editor => {
+				// Save the reference to the instance for further use.
+				this.instance = markRaw( editor );
+
+				this.setUpEditorEvents();
+
+				// Synchronize the editor content. The #modelValue may change while the editor is being created, so the editor content has
+				// to be synchronized with these potential changes as soon as it is ready.
+				if ( this.modelValue !== editorConfig.initialData ) {
+					editor.data.set( this.modelValue );
+				}
+
+				// Set initial disabled state.
+				if ( this.disabled ) {
+					editor.enableReadOnlyMode( SAMPLE_READ_ONLY_LOCK_ID );
+				}
+
+				// Let the world know the editor is ready.
+				this.$emit( 'ready', editor );
+			} )
+			.catch( error => {
+				console.error( error );
+			} );
+	},
+
+	beforeUnmount() {
+		if ( this.instance ) {
+			this.instance.destroy();
+			this.instance = null;
+		}
+
+		// Note: By the time the editor is destroyed (promise resolved, editor#destroy fired)
+		// the Vue component will not be able to emit any longer. So emitting #destroy a bit earlier.
+		this.$emit( 'destroy', this.instance );
+	},
+
 	methods: {
 		setUpEditorEvents() {
-			const editor = this.instance;
+			const editor = this.instance!;
 
 			// Use the leading edge so the first event in the series is emitted immediately.
 			// Failing to do so leads to race conditions, for instance, when the component modelValue
 			// is set twice in a time span shorter than the debounce time.
 			// See https://github.com/ckeditor/ckeditor5-vue/issues/149.
 			const emitDebouncedInputEvent = debounce( evt => {
+				if ( this.disableTwoWayDataBinding ) {
+					return;
+				}
+
 				// Cache the last editor data. This kind of data is a result of typing,
 				// editor command execution, collaborative changes to the document, etc.
 				// This data is compared when the component modelValue changes in a 2-way binding.
-				const data = this.lastEditorData = editor.getData();
+				const data = this.lastEditorData = editor.data.get();
 
 				// The compatibility with the v-model and general Vue.js concept of input–like components.
 				this.$emit( 'update:modelValue', data, evt, editor );
@@ -194,5 +208,9 @@ export default {
 				this.$emit( 'blur', evt, editor );
 			} );
 		}
+	},
+
+	render() {
+		return h( this.tagName );
 	}
-};
+} );
