@@ -1,135 +1,125 @@
-import { h as M, markRaw as A } from "vue";
+import * as C from "vue";
+import { defineComponent as L, markRaw as M, h as A } from "vue";
 var K = typeof global == "object" && global && global.Object === Object && global;
 const P = K;
-var U = typeof self == "object" && self && self.Object === Object && self, W = P || U || Function("return this")();
-const x = W;
-var B = x.Symbol;
-const h = B;
-var R = Object.prototype, F = R.hasOwnProperty, G = R.toString, g = h ? h.toStringTag : void 0;
-function q(t) {
-  var e = F.call(t, g), i = t[g];
+var U = typeof self == "object" && self && self.Object === Object && self, F = P || U || Function("return this")();
+const N = F;
+var G = N.Symbol;
+const b = G;
+var x = Object.prototype, q = x.hasOwnProperty, H = x.toString, g = b ? b.toStringTag : void 0;
+function X(t) {
+  var e = q.call(t, g), i = t[g];
   try {
     t[g] = void 0;
     var o = !0;
   } catch {
   }
-  var s = G.call(t);
+  var s = H.call(t);
   return o && (e ? t[g] = i : delete t[g]), s;
 }
-var H = Object.prototype, X = H.toString;
-function Y(t) {
-  return X.call(t);
+var Y = Object.prototype, z = Y.toString;
+function J(t) {
+  return z.call(t);
 }
-var z = "[object Null]", J = "[object Undefined]", C = h ? h.toStringTag : void 0;
-function Q(t) {
-  return t == null ? t === void 0 ? J : z : C && C in Object(t) ? q(t) : Y(t);
+var Q = "[object Null]", Z = "[object Undefined]", $ = b ? b.toStringTag : void 0;
+function tt(t) {
+  return t == null ? t === void 0 ? Z : Q : $ && $ in Object(t) ? X(t) : J(t);
 }
-function Z(t) {
+function et(t) {
   return t != null && typeof t == "object";
 }
-var tt = "[object Symbol]";
-function et(t) {
-  return typeof t == "symbol" || Z(t) && Q(t) == tt;
-}
-var nt = /\s/;
+var nt = "[object Symbol]";
 function it(t) {
-  for (var e = t.length; e-- && nt.test(t.charAt(e)); )
+  return typeof t == "symbol" || et(t) && tt(t) == nt;
+}
+var rt = /\s/;
+function ot(t) {
+  for (var e = t.length; e-- && rt.test(t.charAt(e)); )
     ;
   return e;
 }
-var rt = /^\s+/;
-function ot(t) {
-  return t && t.slice(0, it(t) + 1).replace(rt, "");
+var at = /^\s+/;
+function st(t) {
+  return t && t.slice(0, ot(t) + 1).replace(at, "");
 }
-function S(t) {
+function v(t) {
   var e = typeof t;
   return t != null && (e == "object" || e == "function");
 }
-var D = 0 / 0, at = /^[-+]0x[0-9a-f]+$/i, st = /^0b[01]+$/i, ct = /^0o[0-7]+$/i, dt = parseInt;
-function N(t) {
+var V = 0 / 0, dt = /^[-+]0x[0-9a-f]+$/i, ct = /^0b[01]+$/i, lt = /^0o[0-7]+$/i, ut = parseInt;
+function k(t) {
   if (typeof t == "number")
     return t;
-  if (et(t))
-    return D;
-  if (S(t)) {
+  if (it(t))
+    return V;
+  if (v(t)) {
     var e = typeof t.valueOf == "function" ? t.valueOf() : t;
-    t = S(e) ? e + "" : e;
+    t = v(e) ? e + "" : e;
   }
   if (typeof t != "string")
     return t === 0 ? t : +t;
-  t = ot(t);
-  var i = st.test(t);
-  return i || ct.test(t) ? dt(t.slice(2), i ? 2 : 8) : at.test(t) ? D : +t;
+  t = st(t);
+  var i = ct.test(t);
+  return i || lt.test(t) ? ut(t.slice(2), i ? 2 : 8) : dt.test(t) ? V : +t;
 }
-var lt = function() {
-  return x.Date.now();
+var ft = function() {
+  return N.Date.now();
 };
-const E = lt;
-var ft = "Expected a function", ut = Math.max, mt = Math.min;
-function gt(t, e, i) {
-  var o, s, l, d, r, c, f = 0, j = !1, u = !1, p = !0;
+const E = ft;
+var mt = "Expected a function", gt = Math.max, ht = Math.min;
+function bt(t, e, i) {
+  var o, s, l, c, r, d, u = 0, S = !1, f = !1, p = !0;
   if (typeof t != "function")
-    throw new TypeError(ft);
-  e = N(e) || 0, S(i) && (j = !!i.leading, u = "maxWait" in i, l = u ? ut(N(i.maxWait) || 0, e) : l, p = "trailing" in i ? !!i.trailing : p);
+    throw new TypeError(mt);
+  e = k(e) || 0, v(i) && (S = !!i.leading, f = "maxWait" in i, l = f ? gt(k(i.maxWait) || 0, e) : l, p = "trailing" in i ? !!i.trailing : p);
   function y(n) {
     var a = o, m = s;
-    return o = s = void 0, f = n, d = t.apply(m, a), d;
+    return o = s = void 0, u = n, c = t.apply(m, a), c;
   }
-  function V(n) {
-    return f = n, r = setTimeout(b, e), j ? y(n) : d;
+  function R(n) {
+    return u = n, r = setTimeout(h, e), S ? y(n) : c;
   }
-  function _(n) {
-    var a = n - c, m = n - f, $ = e - a;
-    return u ? mt($, l - m) : $;
+  function W(n) {
+    var a = n - d, m = n - u, w = e - a;
+    return f ? ht(w, l - m) : w;
   }
-  function v(n) {
-    var a = n - c, m = n - f;
-    return c === void 0 || a >= e || a < 0 || u && m >= l;
+  function j(n) {
+    var a = n - d, m = n - u;
+    return d === void 0 || a >= e || a < 0 || f && m >= l;
   }
-  function b() {
+  function h() {
     var n = E();
-    if (v(n))
+    if (j(n))
       return I(n);
-    r = setTimeout(b, _(n));
+    r = setTimeout(h, W(n));
   }
   function I(n) {
-    return r = void 0, p && o ? y(n) : (o = s = void 0, d);
+    return r = void 0, p && o ? y(n) : (o = s = void 0, c);
   }
-  function k() {
-    r !== void 0 && clearTimeout(r), f = 0, o = c = s = r = void 0;
+  function _() {
+    r !== void 0 && clearTimeout(r), u = 0, o = d = s = r = void 0;
   }
-  function L() {
-    return r === void 0 ? d : I(E());
+  function B() {
+    return r === void 0 ? c : I(E());
   }
   function T() {
-    var n = E(), a = v(n);
-    if (o = arguments, s = this, c = n, a) {
+    var n = E(), a = j(n);
+    if (o = arguments, s = this, d = n, a) {
       if (r === void 0)
-        return V(c);
-      if (u)
-        return clearTimeout(r), r = setTimeout(b, e), y(c);
+        return R(d);
+      if (f)
+        return clearTimeout(r), r = setTimeout(h, e), y(d);
     }
-    return r === void 0 && (r = setTimeout(b, e)), d;
+    return r === void 0 && (r = setTimeout(h, e)), c;
   }
-  return T.cancel = k, T.flush = L, T;
+  return T.cancel = _, T.flush = B, T;
 }
 /**
- * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md.
  */
-const O = "Integration Sample", bt = 300, w = {
-  name: "ckeditor",
-  created() {
-    const { CKEDITOR_VERSION: t } = window;
-    if (t) {
-      const [e] = t.split(".").map(Number);
-      e < 34 && console.warn("The <CKEditor> component requires using CKEditor 5 in version 34 or higher.");
-    } else
-      console.warn('Cannot find the "CKEDITOR_VERSION" in the "window" scope.');
-  },
-  render() {
-    return M(this.tagName);
-  },
+const O = "Integration Sample", pt = 300, D = L({
+  name: "Ckeditor",
   model: {
     prop: "modelValue",
     event: "update:modelValue"
@@ -137,15 +127,15 @@ const O = "Integration Sample", bt = 300, w = {
   props: {
     editor: {
       type: Function,
-      default: null
-    },
-    modelValue: {
-      type: String,
-      default: ""
+      required: !0
     },
     config: {
       type: Object,
       default: () => ({})
+    },
+    modelValue: {
+      type: String,
+      default: ""
     },
     tagName: {
       type: String,
@@ -154,21 +144,45 @@ const O = "Integration Sample", bt = 300, w = {
     disabled: {
       type: Boolean,
       default: !1
+    },
+    disableTwoWayDataBinding: {
+      type: Boolean,
+      default: !1
     }
   },
+  emits: [
+    "ready",
+    "destroy",
+    "blur",
+    "focus",
+    "input",
+    "update:modelValue"
+  ],
   data() {
     return {
       instance: null,
-      lastEditorData: {
-        type: String,
-        default: ""
-      }
+      lastEditorData: null
     };
+  },
+  watch: {
+    modelValue(t) {
+      this.instance && t !== this.lastEditorData && this.instance.data.set(t);
+    },
+    disabled(t) {
+      t ? this.instance.enableReadOnlyMode(O) : this.instance.disableReadOnlyMode(O);
+    }
+  },
+  created() {
+    const { CKEDITOR_VERSION: t } = window;
+    if (!t)
+      return console.warn('Cannot find the "CKEDITOR_VERSION" in the "window" scope.');
+    const [e] = t.split(".").map(Number);
+    e >= 42 || t.startsWith("0.0.0") || console.warn("The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.");
   },
   mounted() {
     const t = Object.assign({}, this.config);
     this.modelValue && (t.initialData = this.modelValue), this.editor.create(this.$el, t).then((e) => {
-      this.instance = A(e), this.setUpEditorEvents(), this.modelValue !== t.initialData && e.setData(this.modelValue), this.disabled && e.enableReadOnlyMode(O), this.$emit("ready", e);
+      this.instance = M(e), this.setUpEditorEvents(), this.modelValue !== t.initialData && e.data.set(this.modelValue), this.disabled && e.enableReadOnlyMode(O), this.$emit("ready", e);
     }).catch((e) => {
       console.error(e);
     });
@@ -176,38 +190,39 @@ const O = "Integration Sample", bt = 300, w = {
   beforeUnmount() {
     this.instance && (this.instance.destroy(), this.instance = null), this.$emit("destroy", this.instance);
   },
-  watch: {
-    modelValue(t) {
-      this.instance && t !== this.lastEditorData && this.instance.setData(t);
-    },
-    disabled(t) {
-      t ? this.instance.enableReadOnlyMode(O) : this.instance.disableReadOnlyMode(O);
-    }
-  },
   methods: {
     setUpEditorEvents() {
-      const t = this.instance, e = gt((i) => {
-        const o = this.lastEditorData = t.getData();
+      const t = this.instance, e = bt((i) => {
+        if (this.disableTwoWayDataBinding)
+          return;
+        const o = this.lastEditorData = t.data.get();
         this.$emit("update:modelValue", o, i, t), this.$emit("input", o, i, t);
-      }, bt, { leading: !0 });
+      }, pt, { leading: !0 });
       t.model.document.on("change:data", e), t.editing.view.document.on("focus", (i) => {
         this.$emit("focus", i, t);
       }), t.editing.view.document.on("blur", (i) => {
         this.$emit("blur", i, t);
       });
     }
+  },
+  render() {
+    return A(this.tagName);
   }
-};
+});
 /**
- * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md.
  */
-const pt = {
+if (!C.version || !C.version.startsWith("3."))
+  throw new Error(
+    "The CKEditor plugin works only with Vue 3+. For more information, please refer to https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/frameworks/vuejs-v3.html"
+  );
+const Tt = {
   install(t) {
-    t.component("ckeditor", w);
+    t.component("Ckeditor", D);
   },
-  component: w
+  component: D
 };
 export {
-  pt as default
+  Tt as default
 };
