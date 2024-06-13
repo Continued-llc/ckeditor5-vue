@@ -1,9 +1,7 @@
 /**
- * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * @license Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md.
  */
-
-/* global window, console, setTimeout */
 
 import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -20,7 +18,7 @@ describe( 'CKEditor Component', () => {
 	beforeEach( () => {
 		CKEDITOR_VERSION = window.CKEDITOR_VERSION;
 
-		window.CKEDITOR_VERSION = '34.0.0';
+		window.CKEDITOR_VERSION = '42.0.0';
 		sandbox = sinon.createSandbox();
 	} );
 
@@ -30,7 +28,7 @@ describe( 'CKEditor Component', () => {
 	} );
 
 	it( 'should have a name', () => {
-		expect( CKEditorComponent.name ).to.equal( 'ckeditor' );
+		expect( CKEditorComponent.name ).to.equal( 'Ckeditor' );
 	} );
 
 	it( 'should print a warning if the "window.CKEDITOR_VERSION" variable is not available', async () => {
@@ -48,7 +46,7 @@ describe( 'CKEditor Component', () => {
 		expect( warnStub.firstCall.args[ 0 ] ).to.equal( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
 	} );
 
-	it( 'should print a warning if using CKEditor 5 in version lower than 34', async () => {
+	it( 'should print a warning if using CKEditor 5 in version lower than 42', async () => {
 		const warnStub = sandbox.stub( console, 'warn' );
 
 		window.CKEDITOR_VERSION = '30.0.0';
@@ -60,13 +58,29 @@ describe( 'CKEditor Component', () => {
 		wrapper.unmount();
 
 		expect( warnStub.callCount ).to.equal( 1 );
-		expect( warnStub.firstCall.args[ 0 ] ).to.equal( 'The <CKEditor> component requires using CKEditor 5 in version 34 or higher.' );
+		expect( warnStub.firstCall.args[ 0 ] ).to.equal(
+			'The <CKEditor> component requires using CKEditor 5 in version 42+ or nightly build.'
+		);
 	} );
 
-	it( 'should not print any warninig if using CKEditor 5 in version 34 or higher', async () => {
+	it( 'should not print any warning if using CKEditor 5 in version 42 or higher', async () => {
 		const warnStub = sandbox.stub( console, 'warn' );
 
-		window.CKEDITOR_VERSION = '34.0.0';
+		window.CKEDITOR_VERSION = '42.0.0';
+
+		sandbox.stub( MockEditor, 'create' ).resolves( new MockEditor() );
+		const { wrapper } = mountComponent();
+
+		await nextTick();
+		wrapper.unmount();
+
+		expect( warnStub.callCount ).to.equal( 0 );
+	} );
+
+	it( 'should not print any warning if using nightly build of CKEditor 5', async () => {
+		const warnStub = sandbox.stub( console, 'warn' );
+
+		window.CKEDITOR_VERSION = '0.0.0-nightly';
 
 		sandbox.stub( MockEditor, 'create' ).resolves( new MockEditor() );
 		const { wrapper } = mountComponent();
@@ -166,7 +180,7 @@ describe( 'CKEditor Component', () => {
 
 				await nextTick();
 
-				expect( vm.instance.getData() ).to.equal( 'bar' );
+				expect( vm.instance.data.get() ).to.equal( 'bar' );
 				expect( vm.instance.setDataCounter ).to.equal( 1 );
 
 				wrapper.unmount();
@@ -297,6 +311,44 @@ describe( 'CKEditor Component', () => {
 			} );
 		} );
 
+		describe( '#disableTwoWayDataBinding', () => {
+			it( 'should set disableTwoWayDataBinding to false by default', async () => {
+				const { wrapper, vm } = mountComponent();
+
+				await nextTick();
+
+				expect( vm.disableTwoWayDataBinding ).to.equal( false );
+
+				wrapper.unmount();
+			} );
+
+			it( 'should not update #modelValue when disableTwoWayDataBinding is true', async () => {
+				const { wrapper, vm } = mountComponent( { disableTwoWayDataBinding: true } );
+
+				sandbox.stub( ModelDocument.prototype, 'on' );
+
+				await nextTick();
+
+				sandbox.stub( vm.instance.data, 'get' ).returns( 'foo' );
+
+				const on = vm.instance.model.document.on;
+				const evtStub = {};
+
+				expect( on.calledOnce ).to.be.true;
+				expect( on.firstCall.args[ 0 ] ).to.equal( 'change:data' );
+
+				expect( wrapper.emitted().input ).to.be.undefined;
+
+				on.firstCall.args[ 1 ]( evtStub );
+
+				await timeout( 350 );
+
+				expect( wrapper.emitted().input ).to.be.undefined;
+
+				wrapper.unmount();
+			} );
+		} );
+
 		it( '#instance should be defined', async () => {
 			const { wrapper, vm } = mountComponent();
 
@@ -333,12 +385,12 @@ describe( 'CKEditor Component', () => {
 			wrapper.unmount();
 		} );
 
-		it( '#modelValue should trigger editor#setData', async () => {
+		it( '#modelValue should trigger editor#data.set', async () => {
 			const { wrapper, vm } = mountComponent();
 
 			await nextTick();
 
-			const spy = sandbox.spy( vm.instance, 'setData' );
+			const spy = sandbox.spy( vm.instance.data, 'set' );
 			wrapper.setProps( { modelValue: 'foo' } );
 
 			await nextTick();
@@ -350,8 +402,8 @@ describe( 'CKEditor Component', () => {
 			sinon.assert.calledTwice( spy );
 
 			// Simulate typing: The #modelValue changes but at the same time, the instance update
-			// its own data so instance.getData() and #modelValue are immediately the same.
-			// Make sure instance.setData() is not called in this situation because it would destroy
+			// its own data so instance.data.get() and #modelValue are immediately the same.
+			// Make sure instance.data.set() is not called in this situation because it would destroy
 			// the selection.
 			wrapper.vm.lastEditorData = 'barq';
 			wrapper.setProps( { modelValue: 'barq' } );
@@ -365,12 +417,12 @@ describe( 'CKEditor Component', () => {
 			wrapper.unmount();
 		} );
 
-		it( '#modelValue should trigger editor#setData only if data is changed', async () => {
+		it( '#modelValue should trigger editor#data.set only if data is changed', async () => {
 			const { wrapper, vm } = mountComponent();
 
 			await nextTick();
 
-			const spy = sandbox.spy( vm.instance, 'setData' );
+			const spy = sandbox.spy( vm.instance.data, 'set' );
 
 			wrapper.setProps( { modelValue: 'foo' } );
 
@@ -418,9 +470,10 @@ describe( 'CKEditor Component', () => {
 				const { wrapper, vm } = mountComponent();
 
 				sandbox.stub( ModelDocument.prototype, 'on' );
-				sandbox.stub( MockEditor.prototype, 'getData' ).returns( 'foo' );
 
 				await nextTick();
+
+				sandbox.stub( vm.instance.data, 'get' ).returns( 'foo' );
 
 				const on = vm.instance.model.document.on;
 				const evtStub = {};
@@ -448,9 +501,10 @@ describe( 'CKEditor Component', () => {
 				const { wrapper, vm } = mountComponent();
 
 				sandbox.stub( ModelDocument.prototype, 'on' );
-				sandbox.stub( MockEditor.prototype, 'getData' ).returns( 'foo' );
 
 				await nextTick();
+
+				sandbox.stub( vm.instance.data, 'get' ).returns( 'foo' );
 
 				const on = vm.instance.model.document.on;
 				const evtStub = {};
